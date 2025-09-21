@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Construction Project Playground</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .tab-btn:hover, .tab-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .module-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .module-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .module-icon {
+            font-size: 2em;
+            margin-right: 15px;
+            color: #667eea;
+        }
+
+        .module-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            margin-left: 10px;
+        }
+
+        .result-panel {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .chart-container {
+            margin-top: 20px;
+            height: 300px;
+            position: relative;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        .data-table th, .data-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .file-upload {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .dashboard-overview {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .module-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏗️ Construction Project Playground</h1>
+            <p>Comprehensive Construction Project Management & Analytics Platform</p>
+            <div class="nav-tabs">
+                <button class="tab-btn active" onclick="showTab('overview')">📊 Dashboard</button>
+                <button class="tab-btn" onclick="showTab('cost-estimator')">💰 Cost Estimator</button>
+                <button class="tab-btn" onclick="showTab('progress-tracker')">📈 Progress Tracker</button>
+                <button class="tab-btn" onclick="showTab('inventory-optimizer')">📦 Inventory Optimizer</button>
+                <button class="tab-btn" onclick="showTab('hse-tracker')">⚡ HSE Tracker</button>
+                <button class="tab-btn" onclick="showTab('electrical-load')">⚡ Electrical Load</button>
+                <button class="tab-btn" onclick="showTab('analytics')">📊 Analytics</button>
+            </div>
+        </div>
+
+        <!-- Dashboard Overview -->
+        <div id="overview" class="tab-content active">
+            <div class="dashboard-overview">
+                <h2>🎯 Project Portfolio Overview</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-projects">12</div>
+                        <div class="stat-label">Active Projects</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-budget">$2.4M</div>
+                        <div class="stat-label">Total Budget</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="completion-rate">73%</div>
+                        <div class="stat-label">Avg Completion</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="safety-score">4.8</div>
+                        <div class="stat-label">Safety Score</div>
+                    </div>
+                </div>
+                
+                <div class="module-grid">
+                    <div class="module-card">
+                        <div class="module-header">
+                            <div class="module-icon">🏢</div>
+                            <div class="module-title">Recent Projects</div>
+                        </div>
+                        <table class="data-table">
+                            <tr><th>Project</th><th>Progress</th><th>Status</th></tr>
+                            <tr><td>Office Complex A</td><td>85%</td><td>On Track</td></tr>
+                            <tr><td>Residential Tower B</td><td>62%</td><td>Delayed</td></tr>
+                            <tr><td>Shopping Mall C</td><td>94%</td><td>Ahead</td></tr>
+                        </table>
+                    </div>
+                    
+                    <div class="module-card">
+                        <div class="module-header">
+                            <div class="module-icon">⚠️</div>
+                            <div class="module-title">Critical Alerts</div>
+                        </div>
+                        <div class="alert alert-warning">Material shortage expected for Project B - Steel beams</div>
+                        <div class="alert alert-danger">Safety inspection due for Site C in 3 days</div>
+                        <div class="alert alert-success">Budget optimization saved $45K this month</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cost Estimator -->
+        <div id="cost-estimator" class="tab-content">
+            <div class="module-grid">
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">💰</div>
+                        <div class="module-title">Project Cost Estimator</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Project Type</label>
+                        <select id="project-type">
+                            <option value="residential">Residential</option>
+                            <option value="commercial">Commercial</option>
+                            <option value="industrial">Industrial</option>
+                            <option value="infrastructure">Infrastructure</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Total Area (sq ft)</label>
+                        <input type="number" id="project-area" placeholder="e.g., 50000">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Construction Type</label>
+                        <select id="construction-type">
+                            <option value="standard">Standard</option>
+                            <option value="premium">Premium</option>
+                            <option value="luxury">Luxury</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Location Factor</label>
+                        <select id="location-factor">
+                            <option value="1.0">Rural (1.0x)</option>
+                            <option value="1.2">Suburban (1.2x)</option>
+                            <option value="1.5">Urban (1.5x)</option>
+                            <option value="1.8">Metropolitan (1.8x)</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn" onclick="calculateCost()">Calculate Estimate</button>
+                    
+                    <div id="cost-results" class="result-panel" style="display:none;">
+                        <h4>📊 Cost Breakdown</h4>
+                        <div id="cost-breakdown"></div>
+                        <div class="chart-container">
+                            <canvas id="cost-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">📋</div>
+                        <div class="module-title">Historical Data Analysis</div>
+                    </div>
+                    
+                    <div class="file-upload" onclick="document.getElementById('cost-file').click()">
+                        <input type="file" id="cost-file" style="display:none;" accept=".csv,.xlsx">
+                        <p>📁 Upload Historical Cost Data</p>
+                        <small>CSV or Excel format supported</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Market Trends</label>
+                        <div class="alert alert-warning">
+                            Steel prices up 12% this quarter
+                        </div>
+                        <div class="alert alert-success">
+                            Labor costs stabilized in your region
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Tracker -->
+        <div id="progress-tracker" class="tab-content">
+            <div class="module-grid">
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">📈</div>
+                        <div class="module-title">Project Progress Dashboard</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Select Project</label>
+                        <select id="progress-project">
+                            <option value="project-a">Office Complex A</option>
+                            <option value="project-b">Residential Tower B</option>
+                            <option value="project-c">Shopping Mall C</option>
+                        </select>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">94%</div>
+                            <div class="stat-label">On-Time Delivery</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">$2.1M</div>
+                            <div class="stat-label">Cost Savings</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">4.9/5</div>
+                            <div class="stat-label">Client Satisfaction</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">99.2%</div>
+                            <div class="stat-label">Safety Compliance</div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-success">
+                        🎉 Performance improved by 15% compared to last quarter
+                    </div>
+                    
+                    <table class="data-table">
+                        <tr><th>Metric</th><th>Current</th><th>Target</th><th>Variance</th></tr>
+                        <tr><td>Budget Adherence</td><td>96%</td><td>95%</td><td>+1%</td></tr>
+                        <tr><td>Schedule Performance</td><td>94%</td><td>90%</td><td>+4%</td></tr>
+                        <tr><td>Quality Score</td><td>4.8/5</td><td>4.5/5</td><td>+0.3</td></tr>
+                        <tr><td>Resource Utilization</td><td>87%</td><td>85%</td><td>+2%</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global data storage
+        const projectData = {
+            projects: [
+                { id: 'project-a', name: 'Office Complex A', progress: 85, budget: 850000, team: 24 },
+                { id: 'project-b', name: 'Residential Tower B', progress: 62, budget: 1200000, team: 18 },
+                { id: 'project-c', name: 'Shopping Mall C', progress: 94, budget: 650000, team: 31 }
+            ],
+            resources: [
+                { name: 'Concrete Workers', hours: 320, completion: 85 },
+                { name: 'Steel Workers', hours: 280, completion: 90 },
+                { name: 'Electricians', hours: 150, completion: 65 },
+                { name: 'Plumbers', hours: 120, completion: 70 }
+            ],
+            hseReports: []
+        };
+
+        // Tab switching functionality
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+            
+            // Initialize charts for the active tab
+            setTimeout(() => {
+                initializeChartsForTab(tabName);
+            }, 100);
+        }
+
+        // Cost Estimator Functions
+        function calculateCost() {
+            const projectType = document.getElementById('project-type').value;
+            const area = parseFloat(document.getElementById('project-area').value);
+            const constructionType = document.getElementById('construction-type').value;
+            const locationFactor = parseFloat(document.getElementById('location-factor').value);
+            
+            if (!area) {
+                alert('Please enter project area');
+                return;
+            }
+            
+            // Base cost per sq ft based on project type
+            const baseCosts = {
+                residential: 120,
+                commercial: 180,
+                industrial: 150,
+                infrastructure: 200
+            };
+            
+            // Construction type multipliers
+            const typeMultipliers = {
+                standard: 1.0,
+                premium: 1.3,
+                luxury: 1.6
+            };
+            
+            const baseCost = baseCosts[projectType] || 150;
+            const typeMultiplier = typeMultipliers[constructionType] || 1.0;
+            
+            const totalCost = area * baseCost * typeMultiplier * locationFactor;
+            
+            // Cost breakdown
+            const materials = totalCost * 0.45;
+            const labor = totalCost * 0.35;
+            const equipment = totalCost * 0.12;
+            const overhead = totalCost * 0.08;
+            
+            const breakdown = {
+                'Materials': materials,
+                'Labor': labor,
+                'Equipment': equipment,
+                'Overhead': overhead
+            };
+            
+            displayCostResults(totalCost, breakdown);
+        }
+        
+        function displayCostResults(totalCost, breakdown) {
+            const resultsDiv = document.getElementById('cost-results');
+            const breakdownDiv = document.getElementById('cost-breakdown');
+            
+            let html = `<div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">${(totalCost/1000000).toFixed(1)}M</div>
+                    <div class="stat-label">Total Estimated Cost</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${(totalCost/parseFloat(document.getElementById('project-area').value)).toFixed(0)}</div>
+                    <div class="stat-label">Cost per Sq Ft</div>
+                </div>
+            </div>`;
+            
+            html += '<table class="data-table"><tr><th>Category</th><th>Amount</th><th>Percentage</th></tr>';
+            for (const [category, amount] of Object.entries(breakdown)) {
+                const percentage = ((amount / totalCost) * 100).toFixed(1);
+                html += `<tr><td>${category}</td><td>${amount.toLocaleString()}</td><td>${percentage}%</td></tr>`;
+            }
+            html += '</table>';
+            
+            breakdownDiv.innerHTML = html;
+            resultsDiv.style.display = 'block';
+            
+            // Create cost breakdown chart
+            createCostChart(breakdown);
+        }
+        
+        function createCostChart(breakdown) {
+            const ctx = document.getElementById('cost-chart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(breakdown),
+                    datasets: [{
+                        data: Object.values(breakdown),
+                        backgroundColor: [
+                            '#667eea',
+                            '#764ba2',
+                            '#f093fb',
+                            '#f5576c'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Progress Tracker Functions
+        function addResourceEntry() {
+            const name = document.getElementById('resource-name').value;
+            const hours = parseFloat(document.getElementById('resource-hours').value);
+            const completion = parseFloat(document.getElementById('resource-completion').value);
+            
+            if (!name || !hours || !completion) {
+                alert('Please fill all fields');
+                return;
+            }
+            
+            projectData.resources.push({ name, hours, completion });
+            
+            // Clear form
+            document.getElementById('resource-name').value = '';
+            document.getElementById('resource-hours').value = '';
+            document.getElementById('resource-completion').value = '';
+            
+            // Update chart
+            createResourceChart();
+        }
+        
+        function createProgressChart() {
+            const ctx = document.getElementById('progress-chart').getContext('2d');
+            
+            const dates = [];
+            const planned = [];
+            const actual = [];
+            
+            // Generate sample data for the last 30 days
+            for (let i = 29; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                dates.push(date.toLocaleDateString());
+                planned.push(Math.min(100, 15 + (29 - i) * 2.5));
+                actual.push(Math.min(100, 10 + (29 - i) * 2.8 + Math.random() * 5));
+            }
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates.filter((_, i) => i % 3 === 0), // Show every 3rd date
+                    datasets: [{
+                        label: 'Planned Progress',
+                        data: planned.filter((_, i) => i % 3 === 0),
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Actual Progress',
+                        data: actual.filter((_, i) => i % 3 === 0),
+                        borderColor: '#764ba2',
+                        backgroundColor: 'rgba(118, 75, 162, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function createResourceChart() {
+            const ctx = document.getElementById('resource-chart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: projectData.resources.map(r => r.name),
+                    datasets: [{
+                        label: 'Hours Allocated',
+                        data: projectData.resources.map(r => r.hours),
+                        backgroundColor: '#667eea',
+                        yAxisID: 'y'
+                    }, {
+                        label: 'Completion %',
+                        data: projectData.resources.map(r => r.completion),
+                        backgroundColor: '#764ba2',
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            max: 100,
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                        }
+                    }
+                }
+            });
+        }
+
+        // Inventory Optimizer Functions
+        function optimizeInventory() {
+            const materialType = document.getElementById('material-type').value;
+            const currentStock = parseFloat(document.getElementById('current-stock').value);
+            const requiredQuantity = parseFloat(document.getElementById('required-quantity').value);
+            
+            if (!currentStock || !requiredQuantity) {
+                alert('Please enter stock and required quantities');
+                return;
+            }
+            
+            const shortage = Math.max(0, requiredQuantity - currentStock);
+            const surplus = Math.max(0, currentStock - requiredQuantity);
+            
+            let recommendation = '';
+            if (shortage > 0) {
+                recommendation = `⚠️ <strong>Order ${shortage} units of ${materialType}</strong><br>
+                    Current shortage will delay project if not addressed.<br>
+                    Recommended order date: Within 7 days<br>
+                    Estimated delivery: 10-14 days`;
+            } else if (surplus > 0) {
+                recommendation = `✅ <strong>Adequate stock with ${surplus} units surplus</strong><br>
+                    Consider reducing next order or reallocating to other projects.<br>
+                    Storage cost savings potential: ${(surplus * 10).toLocaleString()}`;
+            } else {
+                recommendation = `✅ <strong>Perfect stock level</strong><br>
+                    Current inventory exactly meets requirements.`;
+            }
+            
+            document.getElementById('inventory-recommendations').innerHTML = recommendation;
+            document.getElementById('inventory-results').style.display = 'block';
+        }
+        
+        function createSupplyChainChart() {
+            const ctx = document.getElementById('supply-chain-chart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                    datasets: [{
+                        label: 'Material Deliveries',
+                        data: [12, 15, 8, 18],
+                        borderColor: '#667eea',
+                        tension: 0.4
+                    }, {
+                        label: 'Consumption Rate',
+                        data: [10, 14, 16, 12],
+                        borderColor: '#764ba2',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        // HSE Tracker Functions
+        function submitHSEReport() {
+            const reportType = document.getElementById('hse-report-type').value;
+            const description = document.getElementById('hse-description').value;
+            const severity = document.getElementById('hse-severity').value;
+            
+            if (!description) {
+                alert('Please enter a description');
+                return;
+            }
+            
+            const report = {
+                id: Date.now(),
+                type: reportType,
+                description,
+                severity,
+                date: new Date().toLocaleDateString(),
+                status: 'Under Review'
+            };
+            
+            projectData.hseReports.push(report);
+            
+            // Clear form
+            document.getElementById('hse-description').value = '';
+            
+            alert('HSE report submitted successfully!');
+            
+            // Update HSE chart
+            createHSEChart();
+        }
+        
+        function createHSEChart() {
+            const ctx = document.getElementById('hse-chart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Safety Incidents',
+                        data: [0, 1, 0, 0, 2, 0],
+                        backgroundColor: '#f5576c'
+                    }, {
+                        label: 'Near Misses',
+                        data: [2, 3, 1, 4, 2, 1],
+                        backgroundColor: '#f093fb'
+                    }, {
+                        label: 'Training Sessions',
+                        data: [8, 6, 10, 8, 12, 9],
+                        backgroundColor: '#667eea'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        // Electrical Load Functions
+        function analyzeElectricalLoad() {
+            const buildingType = document.getElementById('building-type').value;
+            const area = parseFloat(document.getElementById('electrical-area').value);
+            const floors = parseInt(document.getElementById('floor-count').value);
+            const hvacType = document.getElementById('hvac-type').value;
+            
+            if (!area || !floors) {
+                alert('Please enter area and floor count');
+                return;
+            }
+            
+            // Load calculations based on building type
+            const loadFactors = {
+                office: 4.5,
+                residential: 2.8,
+                retail: 6.2,
+                hospital: 8.5,
+                school: 3.8
+            };
+            
+            const hvacMultipliers = {
+                standard: 1.0,
+                'high-efficiency': 0.85,
+                geothermal: 0.75
+            };
+            
+            const baseLoad = (area * loadFactors[buildingType] || 4.0) / 1000; // Convert to kW
+            const hvacLoad = baseLoad * 0.4 * hvacMultipliers[hvacType];
+            const lightingLoad = baseLoad * 0.25;
+            const plugLoad = baseLoad * 0.2;
+            const miscLoad = baseLoad * 0.15;
+            
+            const totalLoad = hvacLoad + lightingLoad + plugLoad + miscLoad;
+            const annualCost = totalLoad * 8760 * 0.12; // Assuming $0.12/kWh
+            
+            const breakdown = {
+                'HVAC': hvacLoad,
+                'Lighting': lightingLoad,
+                'Plug Loads': plugLoad,
+                'Miscellaneous': miscLoad
+            };
+            
+            displayElectricalResults(totalLoad, annualCost, breakdown);
+        }
+        
+        function displayElectricalResults(totalLoad, annualCost, breakdown) {
+            const resultsDiv = document.getElementById('electrical-results');
+            const breakdownDiv = document.getElementById('electrical-breakdown');
+            
+            let html = `<div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">${totalLoad.toFixed(0)} kW</div>
+                    <div class="stat-label">Total Connected Load</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${(annualCost/1000).toFixed(0)}K</div>
+                    <div class="stat-label">Annual Energy Cost</div>
+                </div>
+            </div>`;
+            
+            html += '<table class="data-table"><tr><th>Load Category</th><th>Power (kW)</th><th>Percentage</th></tr>';
+            for (const [category, load] of Object.entries(breakdown)) {
+                const percentage = ((load / totalLoad) * 100).toFixed(1);
+                html += `<tr><td>${category}</td><td>${load.toFixed(1)} kW</td><td>${percentage}%</td></tr>`;
+            }
+            html += '</table>';
+            
+            breakdownDiv.innerHTML = html;
+            resultsDiv.style.display = 'block';
+            
+            createElectricalChart(breakdown);
+        }
+        
+        function createElectricalChart(breakdown) {
+            const ctx = document.getElementById('electrical-chart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(breakdown),
+                    datasets: [{
+                        data: Object.values(breakdown),
+                        backgroundColor: [
+                            '#667eea',
+                            '#764ba2',
+                            '#f093fb',
+                            '#f5576c'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Analytics Functions
+        function generateAnalytics() {
+            const period = document.getElementById('analytics-period').value;
+            
+            // Simulate analytics generation
+            setTimeout(() => {
+                createAnalyticsChart(period);
+                alert('Analytics report generated successfully!');
+            }, 1000);
+        }
+        
+        function createAnalyticsChart(period) {
+            const ctx = document.getElementById('analytics-chart').getContext('2d');
+            
+            let labels, data1, data2;
+            
+            switch(period) {
+                case 'week':
+                    labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                    data1 = [85, 87, 89, 86, 92, 88, 90];
+                    data2 = [78, 82, 85, 83, 88, 85, 87];
+                    break;
+                case 'month':
+                    labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+                    data1 = [87, 89, 91, 88];
+                    data2 = [82, 85, 87, 84];
+                    break;
+                case 'quarter':
+                    labels = ['Jan', 'Feb', 'Mar'];
+                    data1 = [85, 88, 92];
+                    data2 = [80, 83, 87];
+                    break;
+                default:
+                    labels = ['Q1', 'Q2', 'Q3', 'Q4'];
+                    data1 = [87, 89, 93, 91];
+                    data2 = [82, 85, 88, 86];
+            }
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Performance Score',
+                        data: data1,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Industry Average',
+                        data: data2,
+                        borderColor: '#764ba2',
+                        backgroundColor: 'rgba(118, 75, 162, 0.1)',
+                        tension: 0.4,
+                        borderDash: [5, 5]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 70,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        // Chart initialization for tabs
+        function initializeChartsForTab(tabName) {
+            switch(tabName) {
+                case 'progress-tracker':
+                    if (document.getElementById('progress-chart') && !window.progressChartInitialized) {
+                        createProgressChart();
+                        createResourceChart();
+                        window.progressChartInitialized = true;
+                    }
+                    break;
+                case 'inventory-optimizer':
+                    if (document.getElementById('supply-chain-chart') && !window.supplyChainChartInitialized) {
+                        createSupplyChainChart();
+                        window.supplyChainChartInitialized = true;
+                    }
+                    break;
+                case 'hse-tracker':
+                    if (document.getElementById('hse-chart') && !window.hseChartInitialized) {
+                        createHSEChart();
+                        window.hseChartInitialized = true;
+                    }
+                    break;
+                case 'electrical-load':
+                    if (document.getElementById('electrical-chart') && !window.electricalChartInitialized) {
+                        // Initialize with sample data
+                        const sampleBreakdown = {
+                            'HVAC': 340,
+                            'Lighting': 150,
+                            'Plug Loads': 120,
+                            'Miscellaneous': 90
+                        };
+                        createElectricalChart(sampleBreakdown);
+                        window.electricalChartInitialized = true;
+                    }
+                    break;
+                case 'analytics':
+                    if (document.getElementById('analytics-chart') && !window.analyticsChartInitialized) {
+                        createAnalyticsChart('month');
+                        window.analyticsChartInitialized = true;
+                    }
+                    break;
+            }
+        }
+
+        // File upload handlers
+        document.getElementById('cost-file').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                alert(`Historical data file "${file.name}" uploaded successfully! This data will be used to improve cost estimates.`);
+            }
+        });
+
+        // Initialize dashboard on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate dashboard stats
+            setTimeout(() => {
+                const stats = document.querySelectorAll('.stat-value');
+                stats.forEach(stat => {
+                    stat.style.transform = 'scale(1.1)';
+                    setTimeout(() => {
+                        stat.style.transform = 'scale(1)';
+                    }, 200);
+                });
+            }, 500);
+            
+            // Initialize overview charts if needed
+            initializeChartsForTab('overview');
+        });
+
+        // Real-time updates simulation
+        setInterval(() => {
+            // Update some random stats to simulate real-time data
+            const progressElement = document.getElementById('project-progress');
+            if (progressElement) {
+                const currentProgress = parseInt(progressElement.textContent);
+                if (Math.random() > 0.7) { // 30% chance to update
+                    progressElement.textContent = Math.min(100, currentProgress + Math.floor(Math.random() * 2)) + '%';
+                }
+            }
+        }, 5000);
+    </script>
+</body>
+</html>grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="project-progress">85%</div>
+                            <div class="stat-label">Overall Progress</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="days-remaining">42</div>
+                            <div class="stat-label">Days Remaining</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="budget-used">67%</div>
+                            <div class="stat-label">Budget Used</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="team-size">24</div>
+                            <div class="stat-label">Team Members</div>
+                        </div>
+                    </div>
+                    
+                    <h4>Phase Progress</h4>
+                    <div class="phase-progress">
+                        <div>Foundation: <div class="progress-bar"><div class="progress-fill" style="width: 100%"></div></div></div>
+                        <div>Structure: <div class="progress-bar"><div class="progress-fill" style="width: 90%"></div></div></div>
+                        <div>MEP: <div class="progress-bar"><div class="progress-fill" style="width: 65%"></div></div></div>
+                        <div>Finishing: <div class="progress-bar"><div class="progress-fill" style="width: 30%"></div></div></div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <canvas id="progress-chart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">👥</div>
+                        <div class="module-title">Resource Allocation</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Add Resource Entry</label>
+                        <input type="text" id="resource-name" placeholder="Resource name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Hours Allocated</label>
+                        <input type="number" id="resource-hours" placeholder="Hours">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Completion %</label>
+                        <input type="number" id="resource-completion" placeholder="0-100">
+                    </div>
+                    
+                    <button class="btn" onclick="addResourceEntry()">Add Entry</button>
+                    
+                    <div class="chart-container">
+                        <canvas id="resource-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Optimizer -->
+        <div id="inventory-optimizer" class="tab-content">
+            <div class="module-grid">
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">📦</div>
+                        <div class="module-title">Material Inventory</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Material Type</label>
+                        <select id="material-type">
+                            <option value="concrete">Concrete</option>
+                            <option value="steel">Steel</option>
+                            <option value="lumber">Lumber</option>
+                            <option value="electrical">Electrical</option>
+                            <option value="plumbing">Plumbing</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Current Stock</label>
+                        <input type="number" id="current-stock" placeholder="Current quantity">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Required Quantity</label>
+                        <input type="number" id="required-quantity" placeholder="Required for project">
+                    </div>
+                    
+                    <button class="btn" onclick="optimizeInventory()">Optimize Inventory</button>
+                    
+                    <div id="inventory-results" class="result-panel" style="display:none;">
+                        <h4>📊 Inventory Analysis</h4>
+                        <div id="inventory-recommendations"></div>
+                    </div>
+                    
+                    <table class="data-table">
+                        <tr><th>Material</th><th>Stock</th><th>Required</th><th>Status</th></tr>
+                        <tr><td>Concrete (m³)</td><td>450</td><td>380</td><td>✅ Adequate</td></tr>
+                        <tr><td>Steel Bars (tons)</td><td>25</td><td>45</td><td>⚠️ Need 20 more</td></tr>
+                        <tr><td>Lumber (board ft)</td><td>8500</td><td>7200</td><td>✅ Adequate</td></tr>
+                    </table>
+                </div>
+                
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">📊</div>
+                        <div class="module-title">Supply Chain Analytics</div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <canvas id="supply-chain-chart"></canvas>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        Cement delivery delayed by 3 days due to weather
+                    </div>
+                    
+                    <div class="alert alert-success">
+                        Steel order arrived 2 days early - storage optimized
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- HSE Tracker -->
+        <div id="hse-tracker" class="tab-content">
+            <div class="module-grid">
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">🛡️</div>
+                        <div class="module-title">Health, Safety & Environment</div>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="safety-incidents">0</div>
+                            <div class="stat-label">Incidents This Month</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="safety-training">95%</div>
+                            <div class="stat-label">Training Complete</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="inspections-due">3</div>
+                            <div class="stat-label">Inspections Due</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="compliance-score">98%</div>
+                            <div class="stat-label">Compliance Score</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Report Type</label>
+                        <select id="hse-report-type">
+                            <option value="incident">Safety Incident</option>
+                            <option value="near-miss">Near Miss</option>
+                            <option value="inspection">Safety Inspection</option>
+                            <option value="training">Training Record</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="hse-description" placeholder="Describe the incident, inspection, or training..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Severity Level</label>
+                        <select id="hse-severity">
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                            <option value="critical">Critical</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn" onclick="submitHSEReport()">Submit Report</button>
+                </div>
+                
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">📋</div>
+                        <div class="module-title">Recent HSE Activities</div>
+                    </div>
+                    
+                    <table class="data-table">
+                        <tr><th>Date</th><th>Type</th><th>Description</th><th>Status</th></tr>
+                        <tr><td>2025-09-20</td><td>Inspection</td><td>Monthly safety walkthrough</td><td>✅ Passed</td></tr>
+                        <tr><td>2025-09-18</td><td>Training</td><td>Fall protection certification</td><td>✅ Complete</td></tr>
+                        <tr><td>2025-09-15</td><td>Near Miss</td><td>Crane operation near power lines</td><td>⚠️ Under Review</td></tr>
+                    </table>
+                    
+                    <div class="chart-container">
+                        <canvas id="hse-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Electrical Load Analyzer -->
+        <div id="electrical-load" class="tab-content">
+            <div class="module-grid">
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">⚡</div>
+                        <div class="module-title">Electrical Load Analysis</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Building Type</label>
+                        <select id="building-type">
+                            <option value="office">Office Building</option>
+                            <option value="residential">Residential</option>
+                            <option value="retail">Retail</option>
+                            <option value="hospital">Hospital</option>
+                            <option value="school">School</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Total Square Footage</label>
+                        <input type="number" id="electrical-area" placeholder="Square feet">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Number of Floors</label>
+                        <input type="number" id="floor-count" placeholder="Number of floors">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>HVAC Type</label>
+                        <select id="hvac-type">
+                            <option value="standard">Standard</option>
+                            <option value="high-efficiency">High Efficiency</option>
+                            <option value="geothermal">Geothermal</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn" onclick="analyzeElectricalLoad()">Analyze Load</button>
+                    
+                    <div id="electrical-results" class="result-panel" style="display:none;">
+                        <h4>⚡ Load Analysis Results</h4>
+                        <div id="electrical-breakdown"></div>
+                    </div>
+                </div>
+                
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">📊</div>
+                        <div class="module-title">Load Distribution</div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <canvas id="electrical-chart"></canvas>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">850 kW</div>
+                            <div class="stat-label">Peak Load</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">650 kW</div>
+                            <div class="stat-label">Avg Load</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">0.76</div>
+                            <div class="stat-label">Load Factor</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">$125K</div>
+                            <div class="stat-label">Annual Cost</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics -->
+        <div id="analytics" class="tab-content">
+            <div class="module-grid">
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">📊</div>
+                        <div class="module-title">Project Analytics Dashboard</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Analysis Period</label>
+                        <select id="analytics-period">
+                            <option value="week">Past Week</option>
+                            <option value="month">Past Month</option>
+                            <option value="quarter">Past Quarter</option>
+                            <option value="year">Past Year</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn" onclick="generateAnalytics()">Generate Report</button>
+                    
+                    <div class="chart-container">
+                        <canvas id="analytics-chart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">🎯</div>
+                        <div class="module-title">KPI Summary</div>
+                    </div>
+                    
+                    <div class="stats-
