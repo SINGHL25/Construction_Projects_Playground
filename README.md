@@ -3,6 +3,7 @@ https://claude.ai/public/artifacts/97f0c566-088c-4bba-ad6c-bb49f916c40f
 
 <iframe src="https://claude.site/public/artifacts/97f0c566-088c-4bba-ad6c-bb49f916c40f/embed" title="Claude Artifact" width="100%" height="600" frameborder="0" allow="clipboard-write" allowfullscreen></iframe>
 
+<img width="1024" height="1024" alt="Generated Image September 22, 2025 - 9_23PM" src="https://github.com/user-attachments/assets/111daa7f-4d8a-4e1a-a015-276a053ef32d" />
 
 ```plaintext
 
